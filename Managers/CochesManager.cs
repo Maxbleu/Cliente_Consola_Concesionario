@@ -20,7 +20,6 @@ namespace ConsoleApp_Concesionario.Managers
         {
             this.Coches = await ObtenerCochesAsync();
         }
-
         public async Task<List<CocheModel>?> ObtenerCochesAsync()
         {
             if(this.Coches.Count == 0)
@@ -29,13 +28,11 @@ namespace ConsoleApp_Concesionario.Managers
             }
             return this.Coches;
         }
-
         public async Task<CocheModel?> ObtenerCocheByIdAsync(int carId)
         {
             CocheModel? coche = await this._cocheServices.GETCocheByIdAsync(carId);
             return coche;
         }
-
         public async Task<CocheModel> CrearCocheAsync(string firstName, string lastName, string country, string carBrand, string carModel, string carColor, int yearOfManufacture, string creditCardType)
         {
             var nuevoCoche = new { FirstName = firstName, LastName = lastName, Country = country, CarBrand = carBrand, CarModel = carModel, CarColor = carColor, YearOfManufacture = yearOfManufacture, CreditCardType = creditCardType };
@@ -43,14 +40,12 @@ namespace ConsoleApp_Concesionario.Managers
             this.Coches.Add(cocheCreado);
             return cocheCreado;
         }
-
         public async Task<CocheModel> ActualizarCocheAsync(int carId, Dictionary<string, JsonElement> datosModificados)
         {
             CocheModel cocheModificado = await this._cocheServices.UPDATECocheAsync(carId, datosModificados);
             this.Coches[carId-1] = cocheModificado;
             return cocheModificado;
         }
-
         public async Task EliminarCocheAsync(int carId)
         {
             await this._cocheServices.DELETECocheAsync(carId);

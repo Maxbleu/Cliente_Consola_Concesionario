@@ -1,15 +1,14 @@
-﻿using System.Runtime.CompilerServices;
-using System.Text.Json;
+﻿using System.Text.Json;
 using ConsoleApp_Concesionario.Managers;
 using ConsoleApp_Concesionario.Models;
 using ConsoleApp_Concesionario.Services;
 using ConsoleApp_Concesionario.Utils;
-
+using Microsoft.Extensions.Configuration;
 internal class Program
 {
+
     private static CocheService _cocheServices;
     private static AuthService _authService;
-
     private static CochesManager _cochesManager;
 
     private static async Task ObtenerCochesAsync()
@@ -30,16 +29,20 @@ internal class Program
         string firstName, lastName, country, carBrand, carModel, carColor, creditCardType;
         int year;
         ConsoleUIUtils.GetNewDataCoche(out firstName, out lastName, out country, out carBrand, out carModel, out carColor, out year, out creditCardType);
+
         CocheModel coche = await _cochesManager.CrearCocheAsync(firstName, lastName, country, carBrand, carModel, carColor, year, creditCardType);
         Console.WriteLine("\n"+coche.ToString()+"\n");
     }
     private static async Task ActualizarCocheAsync() 
     {
         if (!await _authService.EstaLogueadoAsync()) return;
+
         int car_id;
-        Dictionary<string, JsonElement> datosModificados = new Dictionary<string, JsonElement>();
+        Dictionary<string, JsonElement> datosModificados;
+        
         ConsoleUIUtils.GetDataNumber(out car_id, "Introduzca el id de un coche");
         ConsoleUIUtils.GetDataModificadaCoche(out datosModificados);
+        
         CocheModel cocheModificado = await _cochesManager.ActualizarCocheAsync(car_id, datosModificados);
         Console.WriteLine(cocheModificado.ToString());
     }
@@ -58,12 +61,14 @@ internal class Program
 
     private async static Task Main(string[] args)
     {
-        //  OPCIONES
-        //  Actualizar Coche
 
-        _cocheServices = new CocheService();
-        _authService = new AuthService(_cocheServices);
+        var configuration = new ConfigurationBuilder()
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("Config//appsettings.json", optional: false, reloadOnChange: true)
+            .Build();
 
+        _cocheServices = new CocheService(configuration);
+        _authService = new AuthService(_cocheServices, configuration);
         _cochesManager = new CochesManager(_cocheServices);
         await _cochesManager.CargarCoches();
 

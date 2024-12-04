@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Json;
+﻿using System.Configuration;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 using ConsoleApp_Concesionario.Models;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 
 namespace ConsoleApp_Concesionario.Services
@@ -15,36 +11,46 @@ namespace ConsoleApp_Concesionario.Services
     public class CocheService
     {
         private readonly HttpClient _httpClient;
-        
-        public CocheService() 
+        private readonly IConfiguration _configuration;
+
+        public CocheService(IConfiguration configuration) 
         {
-            this._httpClient = new HttpClient
+            _configuration = configuration;
+            _httpClient = new HttpClient
             {
-                BaseAddress = new Uri(ConfigurationManager.AppSettings["ApiBaseUrl"])
+                BaseAddress = new Uri(_configuration["ApiBaseUrl"])
             };
         }
 
         public void LoadJwtToken(string token)
         {
-            this._httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
         }
 
         public async Task<List<CocheModel>> GETCochesAsync()
         {
-            HttpResponseMessage response = await this._httpClient.GetAsync(ConfigurationManager.AppSettings["ApiVehiculos"]);
+            HttpResponseMessage response = await this._httpClient.GetAsync(this._configuration["ApiVehiculos"]);
             string jsonContent = await response.Content.ReadAsStringAsync();
-            List<CocheModel> coches = JsonConvert.DeserializeObject<IEnumerable<CocheModel>>(jsonContent).ToList();
+            List<CocheModel> coches =  JsonConvert.DeserializeObject<IEnumerable<CocheModel>>(jsonContent).ToList();
             return coches;
         }
 
         public async Task<CocheModel?> GETCocheByIdAsync(int carId)
         {
             CocheModel? coche = null;
-            HttpResponseMessage response = await this._httpClient.GetAsync(ConfigurationManager.AppSettings["ApiVehiculos"]+carId);
-            if (response.IsSuccessStatusCode)
+            try
             {
-                string jsonContent = await response.Content.ReadAsStringAsync();
-                coche = JsonConvert.DeserializeObject<CocheModel>(jsonContent);
+                this._httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                HttpResponseMessage response = await this._httpClient.GetAsync(this._configuration["ApiVehiculos"] + carId);
+                if (response.IsSuccessStatusCode)
+                {
+                    string jsonContent = await response.Content.ReadAsStringAsync();
+                    coche = JsonConvert.DeserializeObject<CocheModel>(jsonContent);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Se produjo un error inesperado: {ex.Message}");
             }
             return coche;
         }
@@ -54,10 +60,10 @@ namespace ConsoleApp_Concesionario.Services
             CocheModel coche = null;
             try
             {
-                string jsonContentSerialize = JsonConvert.SerializeObject(nuevoCoche);
+                string jsonContentSerialize = System.Text.Json.JsonSerializer.Serialize(nuevoCoche);
                 HttpContent httpContent = new StringContent(jsonContentSerialize, Encoding.UTF8, "application/json");
 
-                HttpResponseMessage response = await this._httpClient.PostAsync(ConfigurationManager.AppSettings["ApiVehiculos"], httpContent);
+                HttpResponseMessage response = await this._httpClient.PostAsync(this._configuration["ApiVehiculos"], httpContent);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -68,11 +74,6 @@ namespace ConsoleApp_Concesionario.Services
             catch (HttpRequestException httpEx)
             {
                 Console.WriteLine($"Error en la solicitud HTTP: {httpEx.Message}");
-            }
-            catch (JsonSerializationException jsonEx)
-            {
-
-                Console.WriteLine($"Error en la serialización/deserialización JSON: {jsonEx.Message}");
             }
             catch (Exception ex)
             {
@@ -87,10 +88,10 @@ namespace ConsoleApp_Concesionario.Services
             try
             {
 
-                string jsonSerializedDatosModificados = JsonConvert.SerializeObject(datosModificados);
-                HttpContent httpContent = new StringContent(jsonSerializedDatosModificados);
+                string jsonSerializedDatosModificados = System.Text.Json.JsonSerializer.Serialize(datosModificados);
+                HttpContent httpContent = new StringContent(jsonSerializedDatosModificados, Encoding.UTF8, "application/json");
 
-                HttpResponseMessage response = await this._httpClient.PutAsync(ConfigurationManager.AppSettings["ApiVehiculos"], httpContent);
+                HttpResponseMessage response = await this._httpClient.PutAsync(this._configuration["ApiVehiculos"]+carId, httpContent);
 
                 if(response.IsSuccessStatusCode)
                 {
@@ -105,11 +106,6 @@ namespace ConsoleApp_Concesionario.Services
                 Console.WriteLine($"Error en la solicitud HTTP: {httpEx.Message}");
                 return null;
             }
-            catch (JsonSerializationException jsonEx)
-            {
-                Console.WriteLine($"Error en la serialización/deserialización JSON: {jsonEx.Message}");
-                return null; 
-            }
             catch (Exception ex)
             {
                 Console.WriteLine($"Se produjo un error inesperado: {ex.Message}");
@@ -120,7 +116,7 @@ namespace ConsoleApp_Concesionario.Services
 
         public async Task DELETECocheAsync(int carId)
         {
-            HttpResponseMessage response = await this._httpClient.DeleteAsync(ConfigurationManager.AppSettings["ApiVehiculos"] + carId);
+            HttpResponseMessage response = await this._httpClient.DeleteAsync(this._configuration["ApiVehiculos"] + carId);
             if(response.IsSuccessStatusCode) { return; }
         }
 

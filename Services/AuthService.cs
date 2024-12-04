@@ -2,6 +2,7 @@
 using System.Text;
 using System.Text.Json;
 using ConsoleApp_Concesionario.Utils;
+using Microsoft.Extensions.Configuration;
 
 namespace ConsoleApp_Concesionario.Services
 {
@@ -9,15 +10,17 @@ namespace ConsoleApp_Concesionario.Services
     {
         private readonly HttpClient _httpClient;
         private readonly CocheService _cocheService;
+        private readonly IConfiguration _configuration;
 
-        private readonly string _urlApiAuth = String.Concat(ConfigurationManager.AppSettings["ApiBaseUrl"], ConfigurationManager.AppSettings["ApiAuth"]);
+        private readonly string _urlApiAuth;
         private string JwtToken { get; set; }
 
-        
-        public AuthService(CocheService cocheService) 
+        public AuthService(CocheService cocheService, IConfiguration configuration)
         {
-            this._httpClient = new HttpClient();
-            this._cocheService = cocheService;
+            _httpClient = new HttpClient();
+            _cocheService = cocheService;
+            _configuration = configuration;
+            _urlApiAuth = $"{_configuration["ApiBaseUrl"]}{_configuration["ApiAuth"]}";
         }
 
         public async Task<bool> EstaLogueadoAsync()
@@ -32,7 +35,6 @@ namespace ConsoleApp_Concesionario.Services
             bool haIniciadoSesion = await this.LoginAsync(username, password);
             return haIniciadoSesion;
         }
-
         public async Task<bool> LoginAsync(string username, string password)
         {
             var user = new
@@ -51,24 +53,9 @@ namespace ConsoleApp_Concesionario.Services
 
                 if (httpResponse.IsSuccessStatusCode)
                 {
-                    Console.WriteLine("\n¡HAS INICIADO SESION!\n");
-
-                    var result = await httpResponse.Content.ReadAsStringAsync();
-                    using (JsonDocument doc = JsonDocument.Parse(result))
-                    {
-                        JsonElement root = doc.RootElement;
-
-                        if (root.TryGetProperty("token", out JsonElement token))
-                        {
-                            this.JwtToken = token.Deserialize<string>();
-                            this._cocheService.LoadJwtToken(this.JwtToken);
-                            return true;
-                        }
-                    }
-                }
-                else
-                {
-                    Console.WriteLine("\nError de autenticación: " + httpResponse.StatusCode);
+                    this.JwtToken = await httpResponse.Content.ReadAsStringAsync();
+                    this._cocheService.LoadJwtToken(this.JwtToken);
+                    return true;
                 }
             }
             catch (Exception ex)
@@ -78,5 +65,9 @@ namespace ConsoleApp_Concesionario.Services
 
             return false;
         }
+    }
+    public class TokenResponse
+    {
+        public string Token { get; set; }
     }
 }
