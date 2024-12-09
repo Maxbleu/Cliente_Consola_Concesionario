@@ -1,6 +1,7 @@
 ﻿using System.Configuration;
 using System.Text;
 using System.Text.Json;
+using ConsoleApp_Concesionario.Models;
 using ConsoleApp_Concesionario.Utils;
 using Microsoft.Extensions.Configuration;
 
@@ -32,16 +33,16 @@ namespace ConsoleApp_Concesionario.Services
             }
 
             ConsoleUIUtils.GetNewDataLogin(out username, out password);
-            bool haIniciadoSesion = await this.LoginAsync(username, password);
-            return haIniciadoSesion;
-        }
-        public async Task<bool> LoginAsync(string username, string password)
-        {
-            var user = new
+            UserModel user = new UserModel
             {
-                UserName = username,
+                Username = username,
                 Password = password
             };
+            bool haIniciadoSesion = await this.LoginAsync(user);
+            return haIniciadoSesion;
+        }
+        public async Task<bool> LoginAsync(UserModel user)
+        {
 
             string objectSerialized = JsonSerializer.Serialize(user);
 
@@ -65,9 +66,5 @@ namespace ConsoleApp_Concesionario.Services
 
             return false;
         }
-    }
-    public class TokenResponse
-    {
-        public string Token { get; set; }
     }
 }

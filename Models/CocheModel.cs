@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Identicable_Nuget;
 
 namespace ConsoleApp_Concesionario.Models
 {
-    public class CocheModel : Identificable<int>
+    public class CocheModel
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }
