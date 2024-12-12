@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
+﻿using System.Reflection;
 using System.Text.Json;
-using System.Threading.Tasks;
 using ConsoleApp_Concesionario.Models;
-using Newtonsoft.Json.Linq;
 
 namespace ConsoleApp_Concesionario.Utils
 {
@@ -65,7 +59,10 @@ namespace ConsoleApp_Concesionario.Utils
                 Console.WriteLine("\nPor favor, introduzca un número\n\n");
                 GetDataNumber(out carId, null);
             }
-            carId = int.Parse(stringCarId);
+            else
+            {
+                carId = int.Parse(stringCarId);
+            }
         }
         public static void GetNewDataCoche(out string firstName, out string lastName, out string country, out string carBrand, out string carModel, out string carColor, out int year, out string credirCardType)
         {
@@ -104,24 +101,27 @@ namespace ConsoleApp_Concesionario.Utils
 
             for(int i = 0; i<propiedades.Length; i++)
             {
-                Console.WriteLine($"¿Desea modificar {propiedades[i].Name}? (s/n)");
-                if(Console.ReadLine().ToLower() == "s")
+                if (i > 0)
                 {
-                    Console.WriteLine($"Introduzca el nuevo {propiedades[i].Name}:");
-
-                    if (propiedades[i].PropertyType == typeof(int))
+                    Console.WriteLine($"¿Desea modificar {propiedades[i].Name}? (s/n)");
+                    if(Console.ReadLine().ToLower() == "s")
                     {
-                        int numberValue = 0;
-                        GetDataNumber(out numberValue, null);
-                        datosModificados.Add(propiedades[i].Name, JsonDocument.Parse(numberValue.ToString()).RootElement);
+                        Console.WriteLine($"Introduzca el nuevo {propiedades[i].Name}:");
+
+                        if (propiedades[i].PropertyType == typeof(int))
+                        {
+                            int numberValue = 0;
+                            GetDataNumber(out numberValue, null);
+                            datosModificados.Add(propiedades[i].Name, JsonDocument.Parse(numberValue.ToString()).RootElement);
+
+                        }
+                        else if (propiedades[i].PropertyType == typeof(string))
+                        {
+                            string stringValue = Console.ReadLine();
+                            datosModificados.Add(propiedades[i].Name, JsonDocument.Parse($"\"{stringValue}\"").RootElement);
+                        }
 
                     }
-                    else if (propiedades[i].PropertyType == typeof(string))
-                    {
-                        string stringValue = Console.ReadLine();
-                        datosModificados.Add(propiedades[i].Name, JsonDocument.Parse($"\"{stringValue}\"").RootElement);
-                    }
-
                 }
             }
         }

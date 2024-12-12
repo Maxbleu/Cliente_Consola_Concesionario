@@ -1,8 +1,6 @@
-﻿using System;
-using System.Text.Json;
+﻿using System.Text.Json;
 using ConsoleApp_Concesionario.Models;
 using ConsoleApp_Concesionario.Services;
-using Newtonsoft.Json;
 
 namespace ConsoleApp_Concesionario.Managers
 {
@@ -10,6 +8,7 @@ namespace ConsoleApp_Concesionario.Managers
     {
         private readonly CocheService _cocheServices;
         public List<CocheModel> Coches;
+
         public CochesManager(CocheService cocheServices) 
         {
             this._cocheServices = cocheServices;

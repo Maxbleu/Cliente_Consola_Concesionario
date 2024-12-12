@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ConsoleApp_Concesionario.Models
+﻿namespace ConsoleApp_Concesionario.Models
 {
     public class CocheModel
     {
+        public int Id { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Country { get; set; }
@@ -17,8 +12,9 @@ namespace ConsoleApp_Concesionario.Models
         public int YearOfManufacture { get; set; }
         public string CreditCardType { get; set; }
 
-        public CocheModel(string firstName, string lastName, string country, string carBrand, string carModel, string carColor, int yearOfManufacture, string creditCardType)
+        public CocheModel(int id, string firstName, string lastName, string country, string carBrand, string carModel, string carColor, int yearOfManufacture, string creditCardType)
         {
+            Id = id;
             FirstName = firstName;
             LastName = lastName;
             Country = country;
@@ -31,7 +27,7 @@ namespace ConsoleApp_Concesionario.Models
 
         public override string ToString()
         {
-            return $"{FirstName} {LastName} - {Country}, {CarBrand} {CarModel} ({YearOfManufacture}), {CarColor}, {CreditCardType}";
+            return $"{Id} {FirstName} {LastName} - {Country}, {CarBrand} {CarModel} ({YearOfManufacture}), {CarColor}, {CreditCardType}";
         }
     }
 }

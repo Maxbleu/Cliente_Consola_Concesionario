@@ -26,7 +26,6 @@ namespace ConsoleApp_Concesionario.Services
         {
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
         }
-
         public async Task<List<CocheModel>> GETCochesAsync()
         {
             HttpResponseMessage response = await this._httpClient.GetAsync(this._configuration["ApiVehiculos"]);
@@ -34,7 +33,6 @@ namespace ConsoleApp_Concesionario.Services
             List<CocheModel> coches =  JsonConvert.DeserializeObject<IEnumerable<CocheModel>>(jsonContent).ToList();
             return coches;
         }
-
         public async Task<CocheModel?> GETCocheByIdAsync(int carId)
         {
             CocheModel? coche = null;
@@ -54,7 +52,6 @@ namespace ConsoleApp_Concesionario.Services
             }
             return coche;
         }
-
         public async Task<CocheModel> POSTCocheAsync(object nuevoCoche)
         {
             CocheModel coche = null;
@@ -81,7 +78,6 @@ namespace ConsoleApp_Concesionario.Services
             }
             return coche;
         }
-
         public async Task<CocheModel> UPDATECocheAsync(int carId, Dictionary<string, JsonElement> datosModificados)
         {
             CocheModel coche = null;
@@ -113,7 +109,6 @@ namespace ConsoleApp_Concesionario.Services
             }
             return coche;
         }
-
         public async Task DELETECocheAsync(int carId)
         {
             HttpResponseMessage response = await this._httpClient.DeleteAsync(this._configuration["ApiVehiculos"] + carId);

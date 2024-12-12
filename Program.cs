@@ -58,20 +58,8 @@ internal class Program
     {
         Console.WriteLine("\nHas salido del programa");
     }
-
-    private async static Task Main(string[] args)
+    private static async Task RunAsync()
     {
-
-        var configuration = new ConfigurationBuilder()
-            .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("Config//appsettings.json", optional: false, reloadOnChange: true)
-            .Build();
-
-        _cocheServices = new CocheService(configuration);
-        _authService = new AuthService(_cocheServices, configuration);
-        _cochesManager = new CochesManager(_cocheServices);
-        await _cochesManager.CargarCoches();
-
         Task tareaSeleccionada = null;
         ConsoleKey input;
 
@@ -112,5 +100,21 @@ internal class Program
             }
 
         } while (input != ConsoleKey.F);
+    }
+
+    private async static Task Main(string[] args)
+    {
+
+        var configuration = new ConfigurationBuilder()
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("Config//appsettings.json", optional: false, reloadOnChange: true)
+            .Build();
+
+        _cocheServices = new CocheService(configuration);
+        _authService = new AuthService(_cocheServices, configuration);
+        _cochesManager = new CochesManager(_cocheServices);
+        await _cochesManager.CargarCoches();
+
+        await RunAsync();
     }
 }
