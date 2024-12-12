@@ -51,7 +51,7 @@ namespace ConsoleApp_Concesionario.Services
                     string jsonContent = await response.Content.ReadAsStringAsync();
 
                     // Deserializamos el contenido JSON a una lista de objetos CocheModel
-                    List<CocheModel> coches = JsonConvert.DeserializeObject<IEnumerable<CocheModel>>(jsonContent).ToList();
+                    listaCoches = JsonConvert.DeserializeObject<IEnumerable<CocheModel>>(jsonContent).ToList();
                 }
             }
             catch (Exception ex)
