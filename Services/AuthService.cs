@@ -1,5 +1,4 @@
-﻿using System.Configuration;
-using System.Text;
+﻿using System.Text;
 using System.Text.Json;
 using ConsoleApp_Concesionario.Models;
 using ConsoleApp_Concesionario.Utils;
@@ -24,6 +23,11 @@ namespace ConsoleApp_Concesionario.Services
             _urlApiAuth = $"{_configuration["ApiBaseUrl"]}{_configuration["ApiAuth"]}";
         }
 
+        /// <summary>
+        /// Este método comprueba si el usuario está logueado, si no lo está, 
+        /// pide las credenciales al usuario y las envía al servidor.
+        /// </summary>
+        /// <returns></returns>
         public async Task<bool> EstaLogueadoAsync()
         {
             string username, password = "";
@@ -41,6 +45,12 @@ namespace ConsoleApp_Concesionario.Services
             bool haIniciadoSesion = await this.LoginAsync(user);
             return haIniciadoSesion;
         }
+        /// <summary>
+        /// Este método envía las credenciales del usuario al 
+        /// servidor y recibe un token JWT si las credenciales son correctas.
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
         public async Task<bool> LoginAsync(UserModel user)
         {
 
